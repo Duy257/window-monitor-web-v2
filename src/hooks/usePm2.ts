@@ -1,14 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../lib/apiClient';
-import { POLL } from '../config';
-import type { Pm2App } from '../types/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "../api/client";
+import { POLL } from "../api/config";
+import type { Pm2App } from "../types/api";
 
 /** Danh sách PM2 managed apps, polling 5 giây */
 export function usePm2Apps() {
   return useQuery<Pm2App[]>({
-    queryKey: ['pm2', 'apps'],
+    queryKey: ["pm2", "apps"],
     queryFn: async () => {
-      const { data } = await apiClient.get('/pm2/apps');
+      const { data } = await apiClient.get("/pm2/apps");
       return data.data;
     },
     refetchInterval: POLL.PM2,
@@ -20,8 +20,9 @@ export function usePm2Apps() {
 export function useRestartApp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (appName: string) => apiClient.post(`/pm2/apps/${appName}/restart`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pm2'] }),
+    mutationFn: (appName: string) =>
+      apiClient.post(`/pm2/apps/${appName}/restart`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pm2"] }),
   });
 }
 
@@ -29,8 +30,9 @@ export function useRestartApp() {
 export function useReloadApp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (appName: string) => apiClient.post(`/pm2/apps/${appName}/reload`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pm2'] }),
+    mutationFn: (appName: string) =>
+      apiClient.post(`/pm2/apps/${appName}/reload`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pm2"] }),
   });
 }
 
@@ -38,8 +40,9 @@ export function useReloadApp() {
 export function useStopApp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (appName: string) => apiClient.post(`/pm2/apps/${appName}/stop`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pm2'] }),
+    mutationFn: (appName: string) =>
+      apiClient.post(`/pm2/apps/${appName}/stop`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pm2"] }),
   });
 }
 
@@ -47,7 +50,8 @@ export function useStopApp() {
 export function useFlushApp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (appName: string) => apiClient.post(`/pm2/apps/${appName}/flush`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pm2'] }),
+    mutationFn: (appName: string) =>
+      apiClient.post(`/pm2/apps/${appName}/flush`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pm2"] }),
   });
 }

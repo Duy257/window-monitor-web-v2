@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { socket } from "../lib/socket";
+import { socket } from "../api/socket";
 
 export type TerminalShell = "powershell" | "cmd";
 
@@ -189,7 +189,7 @@ export function useTerminalSession({
 
       socket.emit("terminal:create", payload);
     },
-    [projectName, projectPath, shell],
+    [projectName, projectPath, shell]
   );
 
   const attachSession = useCallback((targetSessionId: string) => {
@@ -206,7 +206,7 @@ export function useTerminalSession({
         data,
       });
     },
-    [status],
+    [status]
   );
 
   const resizeSession = useCallback(
@@ -218,7 +218,7 @@ export function useTerminalSession({
         rows,
       });
     },
-    [status],
+    [status]
   );
 
   const closeSession = useCallback(() => {

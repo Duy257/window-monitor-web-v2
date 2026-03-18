@@ -1,14 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../lib/apiClient';
-import { POLL } from '../config';
-import type { AlertRule, AlertLog, AlertChannels, CreateAlertRulePayload } from '../types/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "../api/client";
+import { POLL } from "../api/config";
+import type {
+  AlertRule,
+  AlertLog,
+  AlertChannels,
+  CreateAlertRulePayload,
+} from "../types/api";
 
 /** Danh sách alert rules */
 export function useAlertRules() {
   return useQuery<AlertRule[]>({
-    queryKey: ['alerts', 'rules'],
+    queryKey: ["alerts", "rules"],
     queryFn: async () => {
-      const { data } = await apiClient.get('/alerts/rules');
+      const { data } = await apiClient.get("/alerts/rules");
       return data.data;
     },
     refetchInterval: POLL.ALERTS * 2,
@@ -19,9 +24,11 @@ export function useAlertRules() {
 /** Lịch sử alert logs */
 export function useAlertLogs(limit = 50) {
   return useQuery<AlertLog[]>({
-    queryKey: ['alerts', 'logs', limit],
+    queryKey: ["alerts", "logs", limit],
     queryFn: async () => {
-      const { data } = await apiClient.get('/alerts/logs', { params: { limit } });
+      const { data } = await apiClient.get("/alerts/logs", {
+        params: { limit },
+      });
       return data.data;
     },
     refetchInterval: POLL.ALERTS,
@@ -32,9 +39,9 @@ export function useAlertLogs(limit = 50) {
 /** Trạng thái channels (Telegram, Email, Slack, Discord) */
 export function useAlertChannels() {
   return useQuery<AlertChannels>({
-    queryKey: ['alerts', 'channels'],
+    queryKey: ["alerts", "channels"],
     queryFn: async () => {
-      const { data } = await apiClient.get('/alerts/channels');
+      const { data } = await apiClient.get("/alerts/channels");
       return data.data;
     },
     staleTime: 60000,
@@ -45,8 +52,10 @@ export function useAlertChannels() {
 export function useCreateAlertRule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: CreateAlertRulePayload) => apiClient.post('/alerts/rules', payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['alerts', 'rules'] }),
+    mutationFn: (payload: CreateAlertRulePayload) =>
+      apiClient.post("/alerts/rules", payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
   });
 }
 
@@ -54,9 +63,15 @@ export function useCreateAlertRule() {
 export function useUpdateAlertRule() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: Partial<CreateAlertRulePayload> & { enabled?: boolean } }) =>
-      apiClient.put(`/alerts/rules/${id}`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['alerts', 'rules'] }),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: Partial<CreateAlertRulePayload> & { enabled?: boolean };
+    }) => apiClient.put(`/alerts/rules/${id}`, payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
   });
 }
 
@@ -65,7 +80,8 @@ export function useDeleteAlertRule() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => apiClient.delete(`/alerts/rules/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['alerts', 'rules'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
   });
 }
 
@@ -74,13 +90,14 @@ export function useToggleAlertRule() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => apiClient.post(`/alerts/rules/${id}/toggle`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['alerts', 'rules'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
   });
 }
 
 /** Gửi test notification */
 export function useTestAlert() {
   return useMutation({
-    mutationFn: () => apiClient.post('/alerts/test'),
+    mutationFn: () => apiClient.post("/alerts/test"),
   });
 }

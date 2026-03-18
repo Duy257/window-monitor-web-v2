@@ -1,14 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../lib/apiClient';
-import { POLL } from '../config';
-import type { CronJob, JobHistory, CreateJobPayload } from '../types/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "../api/client";
+import { POLL } from "../api/config";
+import type { CronJob, JobHistory, CreateJobPayload } from "../types/api";
 
 /** Danh sách tất cả cron jobs */
 export function useJobs() {
   return useQuery<CronJob[]>({
-    queryKey: ['jobs'],
+    queryKey: ["jobs"],
     queryFn: async () => {
-      const { data } = await apiClient.get('/jobs');
+      const { data } = await apiClient.get("/jobs");
       return data.data;
     },
     refetchInterval: POLL.JOBS,
@@ -19,7 +19,7 @@ export function useJobs() {
 /** Lịch sử chạy của một job */
 export function useJobHistory(jobId: number | null) {
   return useQuery<JobHistory[]>({
-    queryKey: ['jobs', jobId, 'history'],
+    queryKey: ["jobs", jobId, "history"],
     queryFn: async () => {
       const { data } = await apiClient.get(`/jobs/${jobId}/history`);
       return data.data;
@@ -33,8 +33,8 @@ export function useJobHistory(jobId: number | null) {
 export function useCreateJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: CreateJobPayload) => apiClient.post('/jobs', payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobs'] }),
+    mutationFn: (payload: CreateJobPayload) => apiClient.post("/jobs", payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["jobs"] }),
   });
 }
 
@@ -42,9 +42,14 @@ export function useCreateJob() {
 export function useUpdateJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: Partial<CreateJobPayload> & { enabled?: boolean } }) =>
-      apiClient.put(`/jobs/${id}`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobs'] }),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: Partial<CreateJobPayload> & { enabled?: boolean };
+    }) => apiClient.put(`/jobs/${id}`, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["jobs"] }),
   });
 }
 
@@ -53,7 +58,7 @@ export function useDeleteJob() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => apiClient.delete(`/jobs/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobs'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["jobs"] }),
   });
 }
 
@@ -63,7 +68,7 @@ export function useRunJob() {
   return useMutation({
     mutationFn: (id: number) => apiClient.post(`/jobs/${id}/run`),
     onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: ['jobs', id, 'history'] });
+      queryClient.invalidateQueries({ queryKey: ["jobs", id, "history"] });
     },
   });
 }
@@ -73,6 +78,6 @@ export function useToggleJob() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => apiClient.post(`/jobs/${id}/toggle`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobs'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["jobs"] }),
   });
 }
