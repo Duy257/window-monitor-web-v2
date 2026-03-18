@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
+import { queryKeys } from "../api/queryKeys";
 import type {
   ExecResult,
   CommandWhitelistEntry,
@@ -19,7 +20,7 @@ export function useRunCommand() {
 /** Danh sách lệnh trong whitelist */
 export function useWhitelist() {
   return useQuery<CommandWhitelistEntry[]>({
-    queryKey: ["exec", "whitelist"],
+    queryKey: queryKeys.exec.whitelist(),
     queryFn: async () => {
       const { data } = await apiClient.get("/exec/whitelist");
       return data.data;
@@ -31,7 +32,7 @@ export function useWhitelist() {
 /** Lịch sử 100 lệnh đã chạy gần nhất */
 export function useExecHistory() {
   return useQuery<CommandLog[]>({
-    queryKey: ["exec", "history"],
+    queryKey: queryKeys.exec.history(),
     queryFn: async () => {
       const { data } = await apiClient.get("/exec/history");
       return data.data;

@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
+import { queryKeys } from "../api/queryKeys";
 import { POLL } from "../api/config";
 import type { Project, DeployLog, Pm2App } from "../types/api";
 
 /** Lấy chi tiết 1 project theo name */
 export function useProject(name: string | undefined) {
   return useQuery<Project>({
-    queryKey: ["project", name],
+    queryKey: queryKeys.projects.detail(name),
     queryFn: async () => {
       const { data } = await apiClient.get(`/projects/${name}`);
       return data.data;
@@ -19,7 +20,7 @@ export function useProject(name: string | undefined) {
 /** Lấy trạng thái project (running/stopped/error) */
 export function useProjectStatus(name: string | undefined) {
   return useQuery<{ status: string }>({
-    queryKey: ["project", name, "status"],
+    queryKey: queryKeys.projects.status(name),
     queryFn: async () => {
       const { data } = await apiClient.get(`/projects/${name}/status`);
       return data.data;
@@ -33,7 +34,7 @@ export function useProjectStatus(name: string | undefined) {
 /** Lịch sử deploy của project */
 export function useProjectDeploys(name: string | undefined) {
   return useQuery<DeployLog[]>({
-    queryKey: ["project", name, "deploys"],
+    queryKey: queryKeys.projects.deploys(name),
     queryFn: async () => {
       const { data } = await apiClient.get(`/projects/${name}/deploys`);
       return data.data;
@@ -52,7 +53,9 @@ export function useDeployProject() {
       return data;
     },
     onSuccess: (_data, name) => {
-      queryClient.invalidateQueries({ queryKey: ["project", name, "deploys"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projects.deploys(name),
+      });
     },
   });
 }
@@ -63,7 +66,7 @@ export function useDeleteProject() {
   return useMutation({
     mutationFn: (name: string) => apiClient.delete(`/projects/${name}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all() });
     },
   });
 }
@@ -71,7 +74,7 @@ export function useDeleteProject() {
 /** Lấy thông tin PM2 app cho project cụ thể */
 export function useProjectPm2(name: string | undefined) {
   return useQuery<Pm2App | undefined>({
-    queryKey: ["pm2", "app", name],
+    queryKey: queryKeys.pm2.app(name),
     queryFn: async () => {
       const { data } = await apiClient.get("/pm2/apps");
       const apps: Pm2App[] = data.data;
@@ -89,7 +92,7 @@ export function useRestartPm2App() {
   return useMutation({
     mutationFn: (name: string) => apiClient.post(`/pm2/apps/${name}/restart`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pm2"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pm2.apps() });
     },
   });
 }
@@ -100,7 +103,7 @@ export function useStopPm2App() {
   return useMutation({
     mutationFn: (name: string) => apiClient.post(`/pm2/apps/${name}/stop`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pm2"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pm2.apps() });
     },
   });
 }
@@ -111,7 +114,7 @@ export function useReloadPm2App() {
   return useMutation({
     mutationFn: (name: string) => apiClient.post(`/pm2/apps/${name}/reload`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pm2"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pm2.apps() });
     },
   });
 }
@@ -122,7 +125,7 @@ export function useFlushPm2Logs() {
   return useMutation({
     mutationFn: (name: string) => apiClient.post(`/pm2/apps/${name}/flush`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pm2"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pm2.apps() });
     },
   });
 }

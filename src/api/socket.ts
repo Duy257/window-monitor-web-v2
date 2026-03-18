@@ -2,11 +2,11 @@ import { io } from "socket.io-client";
 import {
   SOCKET_RECONNECT_ATTEMPTS,
   SOCKET_RECONNECT_DELAY,
-  API_URL,
+  API_HTTP_BASE_URL,
 } from "./config";
 import { getApiKey } from "./auth";
 
-export const socket = io(API_URL, {
+export const socket = io(API_HTTP_BASE_URL, {
   autoConnect: false,
   auth: {
     apiKey: getApiKey(),

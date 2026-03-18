@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
+import { queryKeys } from "../api/queryKeys";
 import { POLL } from "../api/config";
 import type {
   AlertRule,
@@ -11,7 +12,7 @@ import type {
 /** Danh sách alert rules */
 export function useAlertRules() {
   return useQuery<AlertRule[]>({
-    queryKey: ["alerts", "rules"],
+    queryKey: queryKeys.alerts.rules(),
     queryFn: async () => {
       const { data } = await apiClient.get("/alerts/rules");
       return data.data;
@@ -24,7 +25,7 @@ export function useAlertRules() {
 /** Lịch sử alert logs */
 export function useAlertLogs(limit = 50) {
   return useQuery<AlertLog[]>({
-    queryKey: ["alerts", "logs", limit],
+    queryKey: queryKeys.alerts.logs(limit),
     queryFn: async () => {
       const { data } = await apiClient.get("/alerts/logs", {
         params: { limit },
@@ -39,7 +40,7 @@ export function useAlertLogs(limit = 50) {
 /** Trạng thái channels (Telegram, Email, Slack, Discord) */
 export function useAlertChannels() {
   return useQuery<AlertChannels>({
-    queryKey: ["alerts", "channels"],
+    queryKey: queryKeys.alerts.channels(),
     queryFn: async () => {
       const { data } = await apiClient.get("/alerts/channels");
       return data.data;
@@ -55,7 +56,7 @@ export function useCreateAlertRule() {
     mutationFn: (payload: CreateAlertRulePayload) =>
       apiClient.post("/alerts/rules", payload),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.alerts.rules() }),
   });
 }
 
@@ -71,7 +72,7 @@ export function useUpdateAlertRule() {
       payload: Partial<CreateAlertRulePayload> & { enabled?: boolean };
     }) => apiClient.put(`/alerts/rules/${id}`, payload),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.alerts.rules() }),
   });
 }
 
@@ -81,7 +82,7 @@ export function useDeleteAlertRule() {
   return useMutation({
     mutationFn: (id: number) => apiClient.delete(`/alerts/rules/${id}`),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.alerts.rules() }),
   });
 }
 
@@ -91,7 +92,7 @@ export function useToggleAlertRule() {
   return useMutation({
     mutationFn: (id: number) => apiClient.post(`/alerts/rules/${id}/toggle`),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["alerts", "rules"] }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.alerts.rules() }),
   });
 }
 

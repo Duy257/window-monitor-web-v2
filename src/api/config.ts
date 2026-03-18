@@ -7,7 +7,42 @@ function envInt(value: string | undefined, fallback: number): number {
   return isNaN(n) ? fallback : n;
 }
 
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3002";
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/+$/, "");
+}
+
+function deriveApiEndpoints(rawApiUrl: string): {
+  httpBaseUrl: string;
+  restBaseUrl: string;
+} {
+  const normalized = trimTrailingSlash(rawApiUrl);
+
+  if (normalized.endsWith("/api")) {
+    return {
+      httpBaseUrl: normalized.slice(0, -4),
+      restBaseUrl: normalized,
+    };
+  }
+
+  return {
+    httpBaseUrl: normalized,
+    restBaseUrl: `${normalized}/api`,
+  };
+}
+
+const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:3002";
+const endpoints = deriveApiEndpoints(rawApiUrl);
+
+/**
+ * Base URL cho Socket.IO (không kèm /api)
+ */
+export const API_HTTP_BASE_URL = endpoints.httpBaseUrl;
+
+/**
+ * Base URL cho REST API (luôn kèm /api)
+ */
+export const API_REST_BASE_URL = endpoints.restBaseUrl;
+
 export const API_KEY = import.meta.env.VITE_API_KEY || "";
 export const API_TIMEOUT = envInt(import.meta.env.VITE_API_TIMEOUT, 30000);
 

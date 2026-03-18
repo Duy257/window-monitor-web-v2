@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
+import { queryKeys } from "../api/queryKeys";
 import type { FileEntry } from "../types/api";
 
 /** Liệt kê nội dung thư mục */
 export function useListDir(dirPath: string | null) {
   return useQuery<FileEntry[]>({
-    queryKey: ["files", "list", dirPath],
+    queryKey: queryKeys.files.list(dirPath),
     queryFn: async () => {
       const { data } = await apiClient.get("/files", {
         params: { path: dirPath },
@@ -20,7 +21,7 @@ export function useListDir(dirPath: string | null) {
 /** Đọc nội dung file text */
 export function useReadFile(filePath: string | null) {
   return useQuery<{ path: string; size: number; content: string }>({
-    queryKey: ["files", "read", filePath],
+    queryKey: queryKeys.files.read(filePath),
     queryFn: async () => {
       const { data } = await apiClient.get("/files/read", {
         params: { path: filePath },
@@ -38,7 +39,8 @@ export function useDeleteFile() {
   return useMutation({
     mutationFn: (targetPath: string) =>
       apiClient.delete("/files", { params: { path: targetPath } }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["files"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.files.all() }),
   });
 }
 
@@ -48,7 +50,8 @@ export function useCreateDir() {
   return useMutation({
     mutationFn: (dirPath: string) =>
       apiClient.post("/files/mkdir", { path: dirPath }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["files"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.files.all() }),
   });
 }
 
@@ -58,7 +61,8 @@ export function useMoveFile() {
   return useMutation({
     mutationFn: ({ from, to }: { from: string; to: string }) =>
       apiClient.put("/files/move", { from, to }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["files"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.files.all() }),
   });
 }
 
